@@ -2,7 +2,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import inquirer from 'inquirer';
-
+import fs from 'fs';
 import { loadOrCreateConfig } from './load-config';
 import { spinner } from './spinner';
 
@@ -65,7 +65,10 @@ export default ${iconName};
 
     const outputFile = path.join(outputDir, `${iconName}.tsx`);
     mkdirSync(outputDir, { recursive: true });
-    writeFileSync(outputFile, content, 'utf-8');
+    // Check if file already exists
+    if (!fs.existsSync(outputFile) || config.overrideExisting) {
+        writeFileSync(outputFile, content, 'utf-8');
+    }
 
     spinner.text = `✅ Icon ${iconName} generated at: ${outputFile}`;
 }

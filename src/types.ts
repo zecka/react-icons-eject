@@ -18,4 +18,11 @@ export interface ReactIconsEjectConfig {
  */
   forceScanDir?: string[];
 
+  /**
+   * If true, will override existing icon files.
+   * If false, will skip files that already exist.
+   * @default false
+   */
+  overrideExisting?: boolean;
+
 }

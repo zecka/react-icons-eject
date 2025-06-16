@@ -3,7 +3,8 @@ import path from 'path';
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import fs from 'fs';
 import { globby } from 'globby';
-import ignore from 'ignore';
+import inquirer from 'inquirer';
+import { execa } from 'execa';
 
 import generateModule from '@babel/generator';
 import { parse } from '@babel/parser';
@@ -14,6 +15,8 @@ const generate = (generateModule as any).default || generateModule;
 
 import { loadOrCreateConfig } from './load-config';
 import { spinner } from './spinner';
+import chalk from 'chalk';
+import { importIcon } from './import-icon';
 
 const projectRoot = process.cwd();
 
@@ -32,14 +35,14 @@ async function getProjectFiles(): Promise<string[]> {
     const reincludedPaths = forceScanDir
         .map(dir => path.relative(projectRoot, path.resolve(projectRoot, dir)))
 
-    const files = await globby(['**/*.{ts,tsx,js,jsx}'], {
+    const files = await globby(['**/*.{ts,tsx}'], {
         cwd: projectRoot,
         absolute: true,
         gitignore: true,
     });
     for (const dir of reincludedPaths) {
         const absoluteDir = path.resolve(projectRoot, dir);
-        const forcedFiles = await globby(['**/*.{ts,tsx,js,jsx}'], {
+        const forcedFiles = await globby(['**/*.{ts,tsx}'], {
             cwd: absoluteDir,
             absolute: true,
             gitignore: true,
@@ -81,7 +84,14 @@ function walkImportDeclarations(
 
     return hasChanged ? generate(ast, { retainLines: true }).code : null;
 }
-
+export async function extractAndImportAllIcons(): Promise<void> {
+    const icons = await extractReactIconList();
+    for (const icon of icons) {
+        spinner.text = `📦 Importing icon: ${icon}`;
+        await importIcon(icon);
+    }
+    spinner.success(`Success! ${icons.length} icons imported.`);
+}
 export async function extractReactIconList(): Promise<string[]> {
     const config = await loadOrCreateConfig();
     // Get current icon list content
@@ -161,10 +171,11 @@ export async function replaceReactIconsImports(): Promise<number> {
     spinner.text = '🔄 Replacing react-icons imports with local imports…';
 
     const files = await getProjectFiles();
+    const modifiedFiles: string[] = [];
     let count = 0;
+
     for (const file of files) {
         const code = readFileSync(file, 'utf-8');
-
         const updatedCode = walkImportDeclarations(code, (p, _set) => {
             const newImports: t.ImportDeclaration[] = [];
 
@@ -176,7 +187,7 @@ export async function replaceReactIconsImports(): Promise<number> {
                         const importPath = `${config.importPath}/icons/${importedIcon}`;
                         const newImport = t.importDeclaration(
                             [t.importDefaultSpecifier(t.identifier(localName))],
-                            t.stringLiteral(importPath),
+                            t.stringLiteral(importPath)
                         );
                         newImports.push(newImport);
                         count++;
@@ -192,9 +203,40 @@ export async function replaceReactIconsImports(): Promise<number> {
         if (updatedCode) {
             writeFileSync(file, updatedCode, 'utf-8');
             spinner.text = `✅ Rewritten imports in: ${path.relative(projectRoot, file)}`;
+            modifiedFiles.push(file);
         }
-        return count
     }
 
-    spinner.text = '✅ All react-icons imports have been replaced.';
+    spinner.stop('✅ All react-icons imports have been replaced. \n');
+    spinner.clear();
+    // 🧹 Optionally run eslint --fix on modified files
+    const eslintPath = path.resolve(process.cwd(), 'node_modules/.bin/eslint');
+    const hasEslint = fs.existsSync(eslintPath);
+    if (hasEslint && modifiedFiles.length > 0) {
+        const { confirmLint } = await inquirer.prompt([
+            {
+                type: 'confirm',
+                name: 'confirmLint',
+                message: 'ESLint detected. Do you want to auto-format the modified files?',
+                default: true,
+            },
+        ]);
+
+        if (confirmLint) {
+            console.log('\n');
+            spinner.start('🧼 Running ESLint on modified files…\n');
+            await execa('npx', ['eslint', '--fix', ...modifiedFiles], {
+                stdio: 'inherit',
+            });
+        } else {
+            console.log(
+                '\n' +
+                chalk.blue('ℹ️  You may want to lint your files using a command like ') +
+                chalk.cyan('npm run lint --fix') +
+                chalk.blue(', depending on your project setup.\n')
+            );
+        }
+    }
+
+    return count;
 }

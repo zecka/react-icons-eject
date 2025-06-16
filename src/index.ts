@@ -2,10 +2,12 @@
 
 import inquirer from 'inquirer';
 import { importIcon } from './import-icon';
-import { extractReactIconList, replaceReactIconsImports } from './extract-icon-list';
+import { extractAndImportAllIcons, extractReactIconList, replaceReactIconsImports } from './extract-icon-list';
 import { loadOrCreateConfig } from './load-config';
 import { ensureBaseIconFiles } from './ensure-base-icon-files';
 import { spinner } from './spinner';
+import chalk from 'chalk';
+import { confirmDestructiveAction } from './confirm-destructive-action';
 
 export async function main() {
   await loadOrCreateConfig();
@@ -23,34 +25,38 @@ export async function main() {
       ],
     },
   ]);
-  spinner.start()
 
   switch (action) {
     case 'import':
+      spinner.start()
       await importIcon();
       spinner.success('Success!');
       break;
     case 'extract':
+      spinner.start()
       await extractReactIconList();
       spinner.success('Success!');
       break;
-    case 'extractAndImportAll': {
-      const icons = await extractReactIconList();
-      for (const icon of icons) {
-        spinner.text = `📦 Importing icon: ${icon}`;
-        await importIcon(icon);
-      }
-      spinner.success(`Success! ${icons.length} icons imported.`);
+    case 'extractAndImportAll':
+      spinner.start()
+      await extractAndImportAllIcons()
       break;
-    }
     case 'fixImports':
-      const count = await replaceReactIconsImports();
-      const icons = await extractReactIconList();
-      for (const icon of icons) {
-        spinner.text = `📦 Importing icon: ${icon}`;
-        await importIcon(icon);
+      // Force user to confirm that all change is commit before proceeding
+      const confirm = await confirmDestructiveAction();
+      if (!confirm) {
+        spinner.error('Action cancelled by user.');
+        process.exit(0);
       }
+      await extractAndImportAllIcons()
+      const count = await replaceReactIconsImports();
+      if (count === 0) {
+        spinner.error('No react-icons imports found to replace.');
+        process.exit(0);
+      }
+
       spinner.success(`Success! ${count} import fixed.`);
+
       break;
     default:
       spinner.error('Unknown action.');

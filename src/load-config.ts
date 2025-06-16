@@ -19,7 +19,7 @@ export async function loadOrCreateConfig(): Promise<ReactIconsEjectConfig> {
 
     console.log(`⚙️ No ${CONFIG_FILENAME} found. Let's create one.`);
 
-    const { outputDir, importPath, forceScanDir } = await inquirer.prompt([
+    const { outputDir, importPath, forceScanDir, overrideExisting } = await inquirer.prompt([
         {
             type: 'input',
             name: 'outputDir',
@@ -38,6 +38,12 @@ export async function loadOrCreateConfig(): Promise<ReactIconsEjectConfig> {
             message: '(Optional) Force scan directories (comma-separated):',
             default: '',
         },
+        {
+            type: 'confirm',
+            name: 'overrideExisting',
+            message: 'Override existing icon files?',
+            default: false,
+        }
     ]);
 
     const forceDirs = forceScanDir
@@ -50,6 +56,7 @@ export async function loadOrCreateConfig(): Promise<ReactIconsEjectConfig> {
     const configObjectLines = [
         `  outputDir: '${outputDir}',`,
         `  importPath: '${importPath}',`,
+        `  overrideExisting: ${overrideExisting ? 'true' : 'false'},`,
         ...(forceDirs.length > 0 ? [`  forceScanDir: ${JSON.stringify(forceDirs)},`] : []),
     ];
 
