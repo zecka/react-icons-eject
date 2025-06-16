@@ -12,7 +12,6 @@ import * as t from '@babel/types';
 const traverse = (traverseModule as any).default || traverseModule;
 const generate = (generateModule as any).default || generateModule;
 
-console.log({ traverse })
 import { loadOrCreateConfig } from './load-config';
 
 const projectRoot = process.cwd();
