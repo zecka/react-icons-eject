@@ -128,7 +128,7 @@ export async function extractReactIconList(): Promise<string[]> {
     }
 
     const iconsList = Array.from(reactIconsSet).sort();
-    const output = `const reactIconsList = ${JSON.stringify(iconsList, null, 2).replace(/"/g, "'")};
+    const output = `/* eslint-disable */\nconst reactIconsList = ${JSON.stringify(iconsList, null, 2).replace(/"/g, "'")};
 export default reactIconsList;
 `;
 
