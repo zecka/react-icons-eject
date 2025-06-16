@@ -16,8 +16,7 @@ This tool scans your project for `react-icons` imports, extracts only the icons 
 - 🔍 Detect and list all used `react-icons` in your project
 - 📦 Generate locally scoped `GenIcon` wrappers for optimal tree-shaking
 - ⚙️ Customizable import paths and output directories via config file
-- 🛠️ Supports `tsx`, `jsx`, `ts`, and `js`
-
+- 🛠️ Designed for TypeScript projects (`.ts`, `.tsx`) using ESM
 ---
 
 ## 📦 Installation
@@ -68,6 +67,21 @@ import RiPlayLine from '@/icons/ri/RiPlayLine';
 > Automatically extracts all icons you're using and generates them locally.
 
 ---
+
+
+## ⚠️ Limitations
+
+This tool is designed with the following assumptions:
+
+- 📁 Your project uses **ES module syntax** (`import` / `export`) — `require()` and CommonJS are not supported.
+- 🧠 It scans `.ts`, `.tsx`, `.js`, and `.jsx` files, but:
+  - ⚠️ Only **ESM-based JavaScript** (`import { ... } from 'react-icons/ri'`) is supported
+  - ✅ Generated icons are written as `.tsx` files — intended for **TypeScript + React** projects
+
+If you're using plain JavaScript and want `.js` output, feel free to open an issue or submit a PR.
+
+---
+
 
 ## 🧩 Configuration
 
