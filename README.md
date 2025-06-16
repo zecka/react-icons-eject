@@ -1,8 +1,8 @@
 # 🧱 react-icons-eject
 
-![npm](https://img.shields.io/npm/v/react-icons-eject?color=crimson&label=npm)
-![minzipped size](https://img.shields.io/bundlephobia/minzip/react-icons-eject?label=minzipped%20size)
-![downloads](https://img.shields.io/npm/dw/react-icons-eject?label=downloads)
+[![npm](https://img.shields.io/npm/v/react-icons-eject?color=crimson&label=npm)](https://www.npmjs.com/package/react-icons-eject)
+[![minzipped size](https://img.shields.io/bundlephobia/minzip/react-icons-eject?label=minzipped%20size)](https://www.npmjs.com/package/react-icons-eject)
+[![downloads](https://img.shields.io/npm/dw/react-icons-eject?label=downloads)](https://www.npmjs.com/package/react-icons-eject)
 ![types](https://img.shields.io/badge/types-TypeScript-blue)
 
 **Tree-shake your react-icons!**  
