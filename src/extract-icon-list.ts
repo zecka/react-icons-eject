@@ -25,16 +25,29 @@ function getImportedIconName(specifier: t.ImportSpecifier): string | undefined {
 }
 
 async function getProjectFiles(): Promise<string[]> {
-    const gitignorePath = path.join(projectRoot, '.gitignore');
-    const ig = ignore().add(readFileSync(gitignorePath, 'utf-8'));
+    const { forceScanDir = [] } = await loadOrCreateConfig();
+
+
+    const reincludedPaths = forceScanDir
+        .map(dir => path.relative(projectRoot, path.resolve(projectRoot, dir)))
 
     const files = await globby(['**/*.{ts,tsx,js,jsx}'], {
         cwd: projectRoot,
         absolute: true,
         gitignore: true,
     });
+    for (const dir of reincludedPaths) {
+        const absoluteDir = path.resolve(projectRoot, dir);
+        const forcedFiles = await globby(['**/*.{ts,tsx,js,jsx}'], {
+            cwd: absoluteDir,
+            absolute: true,
+            gitignore: true,
+        });
+        console.log(forcedFiles);
+        files.push(...forcedFiles)
+    }
 
-    return files.filter(file => !ig.ignores(path.relative(projectRoot, file)));
+    return files;
 }
 
 function walkImportDeclarations(

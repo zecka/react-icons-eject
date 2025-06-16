@@ -10,4 +10,12 @@ export interface ReactIconsEjectConfig {
    * @example @/src/components/atoms/icons/react-icons
    */
   importPath: string;
+
+  /**
+ * Optional list of directories to scan even if they're ignored by .gitignore.
+ * Use relative paths from the project root.
+ * @example ["node_modules/@acme/ui"]
+ */
+  forceScanDir?: string[];
+
 }

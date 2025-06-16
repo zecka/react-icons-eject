@@ -19,7 +19,7 @@ export async function loadOrCreateConfig(): Promise<ReactIconsEjectConfig> {
 
     console.log(`⚙️ No ${CONFIG_FILENAME} found. Let's create one.`);
 
-    const { outputDir, importPath } = await inquirer.prompt([
+    const { outputDir, importPath, forceScanDir } = await inquirer.prompt([
         {
             type: 'input',
             name: 'outputDir',
@@ -32,13 +32,31 @@ export async function loadOrCreateConfig(): Promise<ReactIconsEjectConfig> {
             message: 'Import path to use in generated files:',
             default: 'src/components/atoms/icons/react-icons',
         },
+        {
+            type: 'input',
+            name: 'forceScanDir',
+            message: '(Optional) Force scan directories (comma-separated):',
+            default: '',
+        },
     ]);
+
+    const forceDirs = forceScanDir
+        .split(',')
+        .map((d: string) => d.trim())
+        .filter(Boolean);
+
     const typeContent = fs.readFileSync(path.resolve(__dirname, 'types.ts'), 'utf-8');
+
+    const configObjectLines = [
+        `  outputDir: '${outputDir}',`,
+        `  importPath: '${importPath}',`,
+        ...(forceDirs.length > 0 ? [`  forceScanDir: ${JSON.stringify(forceDirs)},`] : []),
+    ];
+
     const content = `${typeContent}
 
 const config: ReactIconsEjectConfig = {
-  outputDir: '${outputDir}',
-  importPath: '${importPath}',
+${configObjectLines.join('\n')}
 };
 
 export default config;
@@ -48,6 +66,9 @@ export default config;
     console.log(`  → Icons will be saved in:      ${outputDir}`);
     console.log(`  → Example import statement:\n`);
     console.log(`    import RiExampleIcon from '${importPath}/icons/RiExampleIcon';\n`);
+    if (forceDirs.length > 0) {
+        console.log(`  → Forced scan directories:     ${forceDirs.join(', ')}`);
+    }
 
     const { confirm } = await inquirer.prompt([
         {
@@ -67,5 +88,9 @@ export default config;
 
     console.log(`✅ Config file created at: ${CONFIG_FILENAME}`);
 
-    return { outputDir, importPath };
+    return {
+        outputDir,
+        importPath,
+        ...(forceDirs.length > 0 ? { forceScanDir: forceDirs } : { forceScanDir: [] }),
+    };
 }
