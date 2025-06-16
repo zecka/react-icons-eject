@@ -2,6 +2,7 @@
   "name": "react-icons-eject",
   "version": "0.0.7",
   "type": "module",
+  "license": "MIT",
   "author": {
     "name": "zecka"
   },
