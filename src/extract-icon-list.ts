@@ -72,8 +72,20 @@ function walkImportDeclarations(
 export async function extractReactIconList(): Promise<string[]> {
     const config = await loadOrCreateConfig();
     console.log('🔍 Extracting used react-icons in the project…');
-
+    // Get current icon list content
+    const iconsListPath = path.resolve(projectRoot, config.outputDir, 'icons-list.ts');
     const reactIconsSet = new Set<string>();
+    if (fs.existsSync(iconsListPath)) {
+        const existingContent = await import(iconsListPath);
+        if (existingContent.default && Array.isArray(existingContent.default)) {
+            for (const icon of existingContent.default) {
+                if (typeof icon === 'string') {
+                    reactIconsSet.add(icon);
+                }
+            }
+        }
+    }
+
     const files = await getProjectFiles();
 
     for (const file of files) {
@@ -90,7 +102,6 @@ export async function extractReactIconList(): Promise<string[]> {
     }
 
     // Include already generated icons
-
 
     const iconsDirBase = path.resolve(projectRoot, config.outputDir);
     const iconsDir = path.join(iconsDirBase, 'icons');
