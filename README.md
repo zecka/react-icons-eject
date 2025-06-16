@@ -6,7 +6,8 @@
 ![types](https://img.shields.io/badge/types-TypeScript-blue)
 
 **Tree-shake your react-icons!**  
-This tool scans your project for `react-icons` imports, extracts only the icons you use, and rewrites imports to point to locally generated components. Perfect for reducing bundle size in frameworks like **Next.js**.
+
+This tool scans your project for `react-icons` usage, extracts only the icons you actually use, and rewrites imports to point to local components — giving you full control over how icons are loaded and potentially improving bundle optimization in frameworks like Next.js.
 
 ---
 
