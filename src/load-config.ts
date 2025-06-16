@@ -24,7 +24,7 @@ export async function loadOrCreateConfig(): Promise<ReactIconsEjectConfig> {
             type: 'input',
             name: 'outputDir',
             message: 'Output folder for generated icons:',
-            default: './src/components/atoms/icons/react-icons/icons',
+            default: './src/components/atoms/icons/react-icons',
         },
         {
             type: 'input',
@@ -44,7 +44,27 @@ const config: ReactIconsEjectConfig = {
 export default config;
 `;
 
+    console.log('\n📦 Configuration summary:');
+    console.log(`  → Icons will be saved in:      ${outputDir}`);
+    console.log(`  → Example import statement:\n`);
+    console.log(`    import RiExampleIcon from '${importPath}/icons/RiExampleIcon';\n`);
+
+    const { confirm } = await inquirer.prompt([
+        {
+            type: 'confirm',
+            name: 'confirm',
+            message: 'Do you want to save this configuration?',
+            default: true,
+        },
+    ]);
+
+    if (!confirm) {
+        console.log('❌ Configuration cancelled. No file was created.');
+        process.exit(0);
+    }
+
     fs.writeFileSync(configPath, content, 'utf-8');
+
     console.log(`✅ Config file created at: ${CONFIG_FILENAME}`);
 
     return { outputDir, importPath };
