@@ -4,6 +4,7 @@ import path from 'path';
 import inquirer from 'inquirer';
 
 import { loadOrCreateConfig } from './load-config';
+import { spinner } from './spinner';
 
 /**
  * Imports a single icon from react-icons and generates a local wrapper file
@@ -34,7 +35,7 @@ export async function importIcon(iconToImport?: string): Promise<void> {
         return;
     }
 
-    console.log(`🔍 Looking for ${iconName} in react-icons/${set}/index.js...`);
+    spinner.text = `🔍 Looking for ${iconName} in react-icons/${set}/index.js...`;
 
     const iconFilePath = path.join(process.cwd(), `./node_modules/react-icons/${set}/index.js`);
     const fileContent = readFileSync(iconFilePath, 'utf-8');
@@ -66,5 +67,5 @@ export default ${iconName};
     mkdirSync(outputDir, { recursive: true });
     writeFileSync(outputFile, content, 'utf-8');
 
-    console.log(`✅ Icon ${iconName} generated at: ${outputFile}`);
+    spinner.text = `✅ Icon ${iconName} generated at: ${outputFile}`;
 }

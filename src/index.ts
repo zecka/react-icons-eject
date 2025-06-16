@@ -5,6 +5,7 @@ import { importIcon } from './import-icon';
 import { extractReactIconList, replaceReactIconsImports } from './extract-icon-list';
 import { loadOrCreateConfig } from './load-config';
 import { ensureBaseIconFiles } from './ensure-base-icon-files';
+import { spinner } from './spinner';
 
 export async function main() {
   await loadOrCreateConfig();
@@ -22,27 +23,37 @@ export async function main() {
       ],
     },
   ]);
+  spinner.start()
 
   switch (action) {
     case 'import':
       await importIcon();
+      spinner.success('Success!');
       break;
     case 'extract':
       await extractReactIconList();
+      spinner.success('Success!');
       break;
     case 'extractAndImportAll': {
       const icons = await extractReactIconList();
       for (const icon of icons) {
-        console.log(`📦 Importing icon: ${icon}`);
+        spinner.text = `📦 Importing icon: ${icon}`;
         await importIcon(icon);
       }
+      spinner.success(`Success! ${icons.length} icons imported.`);
       break;
     }
     case 'fixImports':
-      await replaceReactIconsImports();
+      const count = await replaceReactIconsImports();
+      const icons = await extractReactIconList();
+      for (const icon of icons) {
+        spinner.text = `📦 Importing icon: ${icon}`;
+        await importIcon(icon);
+      }
+      spinner.success(`Success! ${count} import fixed.`);
       break;
     default:
-      console.error('❌ Unknown action.');
+      spinner.error('Unknown action.');
       process.exit(1);
   }
 }

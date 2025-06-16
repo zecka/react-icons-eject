@@ -13,6 +13,7 @@ const traverse = (traverseModule as any).default || traverseModule;
 const generate = (generateModule as any).default || generateModule;
 
 import { loadOrCreateConfig } from './load-config';
+import { spinner } from './spinner';
 
 const projectRoot = process.cwd();
 
@@ -43,7 +44,6 @@ async function getProjectFiles(): Promise<string[]> {
             absolute: true,
             gitignore: true,
         });
-        console.log(forcedFiles);
         files.push(...forcedFiles)
     }
 
@@ -84,7 +84,6 @@ function walkImportDeclarations(
 
 export async function extractReactIconList(): Promise<string[]> {
     const config = await loadOrCreateConfig();
-    console.log('🔍 Extracting used react-icons in the project…');
     // Get current icon list content
     const iconsListPath = path.resolve(projectRoot, config.outputDir, 'icons-list.ts');
     const reactIconsSet = new Set<string>();
@@ -153,16 +152,16 @@ export default reactIconsList;
     }
     writeFileSync(outputPath, output, 'utf-8');
 
-    console.log(`✅ Icon list generated in: ${outputPath}`);
+    spinner.text = `✅ Icon list generated in: ${outputPath}`;
     return iconsList;
 }
 
-export async function replaceReactIconsImports(): Promise<void> {
+export async function replaceReactIconsImports(): Promise<number> {
     const config = await loadOrCreateConfig();
-    console.log('🔄 Replacing react-icons imports with local imports…');
+    spinner.text = '🔄 Replacing react-icons imports with local imports…';
 
     const files = await getProjectFiles();
-
+    let count = 0;
     for (const file of files) {
         const code = readFileSync(file, 'utf-8');
 
@@ -180,6 +179,7 @@ export async function replaceReactIconsImports(): Promise<void> {
                             t.stringLiteral(importPath),
                         );
                         newImports.push(newImport);
+                        count++;
                     }
                 }
             }
@@ -191,9 +191,10 @@ export async function replaceReactIconsImports(): Promise<void> {
 
         if (updatedCode) {
             writeFileSync(file, updatedCode, 'utf-8');
-            console.log(`✅ Rewritten imports in: ${path.relative(projectRoot, file)}`);
+            spinner.text = `✅ Rewritten imports in: ${path.relative(projectRoot, file)}`;
         }
+        return count
     }
 
-    console.log('✅ All react-icons imports have been replaced.');
+    spinner.text = '✅ All react-icons imports have been replaced.';
 }
