@@ -100,12 +100,19 @@ export const config = {
 
 ---
 
-## 💡 Why?
+## 🤔 Why?
 
-Using `react-icons` out-of-the-box imports entire icon sets, which breaks tree-shaking in many frameworks (like Next.js). This tool helps reduce your final bundle size by:
+Using `react-icons` out of the box imports entire icon sets like `react-icons/ri`, which can:
 
-- Only generating what you use
-- Replacing dynamic imports with static, local ones
+- Break tree-shaking in some build tools
+- Slow down your dev server and production builds
+- Introduce unnecessary dependencies into your bundle
+
+This tool helps by:
+
+- Extracting only the icons you actually use
+- Rewriting imports to static, local files
+- Giving you full control over how icons are loaded and used
 
 ---
 
