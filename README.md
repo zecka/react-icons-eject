@@ -113,6 +113,10 @@ This tool helps by:
 - Rewriting imports to static, local files
 - Giving you full control over how icons are loaded and used
 
+### Related issues
+- https://github.com/react-icons/react-icons/issues/593
+- https://github.com/vercel/next.js/issues/70666
+
 ---
 
 ## 📄 License
