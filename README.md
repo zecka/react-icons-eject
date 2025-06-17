@@ -15,7 +15,6 @@ This tool scans your project for `react-icons` usage, extracts only the icons yo
 
 - ✅ Replace all `react-icons` imports with local icon components
 - 🔍 Detect and list all used `react-icons` in your project
-- 📦 Generate locally scoped `GenIcon` wrappers for optimal tree-shaking
 - ⚙️ Customizable import paths and output directories via config file
 - 🛠️ Designed for TypeScript projects (`.ts`, `.tsx`) using ESM
 ---
