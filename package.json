@@ -9,6 +9,10 @@
   "bin": {
     "react-icons-eject": "./bin/index.ts"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zecka/react-icons-eject.git"
+  },
   "exports": {
     "./package.json": "./package.json"
   },
