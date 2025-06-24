@@ -28,7 +28,6 @@ export async function main() {
 
   switch (action) {
     case 'import':
-      spinner.start()
       await importIcon();
       spinner.success('Success!');
       break;

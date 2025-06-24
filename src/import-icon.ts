@@ -34,6 +34,7 @@ export async function importIcon(iconToImport?: string): Promise<void> {
         console.log('❌ Invalid icon format. Use format like ri/RiArrowLeftLine.');
         return;
     }
+    spinner.start()
 
     spinner.text = `🔍 Looking for ${iconName} in react-icons/${set}/index.js...`;
 
